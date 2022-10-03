@@ -386,7 +386,7 @@ Axiom eqHash : forall (a : Set), a -> a -> T.
 Axiom eqHashRefl1 : forall (a : Set) (x y : a), x = y -> eqHash a x y = true.
 Axiom eqHashRefl2 : forall (a : Set) (x y : a), eqHash a x y = true -> x = y.
 
-Theorem substTerm : forall (a : Set) (v : a) (phi : a -> THash), existsHash a (fun (x : a) => andHash (delt (eqHash a x v)) (phi x)) = phi v.
+Theorem delt_elim : forall (a : Set) (v : a) (phi : a -> THash), existsHash a (fun (x : a) => andHash (delt (eqHash a x v)) (phi x)) = phi v.
 Proof.
   intros.
   case_eq (phi v).
@@ -397,10 +397,8 @@ Proof.
   replace (delt true = trueHash) with (delt (eqHash a v v) = trueHash) in e0 by now (rewrite (eq_sym (eqHashRefl1 a v v eq_refl))).
   apply eq_sym in e0.
   replace (andHash trueHash (phi v) = trueHash) with (andHash (delt (eqHash a v v)) (phi v) = trueHash) in e by now (rewrite e0).
-  pose (ex_intro (fun x : a =>
-     andHash (delt (eqHash a x v)) (phi x) = trueHash) v e).
-  exact (existsHashDef1 a (fun x : a =>
-                             andHash (delt (eqHash a x v)) (phi x)) e1).
+  pose (ex_intro (fun x : a => andHash (delt (eqHash a x v)) (phi x) = trueHash) v e).
+  exact (existsHashDef1 a (fun x : a => andHash (delt (eqHash a x v)) (phi x)) e1).
   intro. apply eq_sym in H.
   pose (proj1 andHashDef2).
   replace (andHash trueHash falseHash = falseHash) with (andHash trueHash (phi v) = falseHash) in e by now (rewrite H).
@@ -408,8 +406,7 @@ Proof.
   replace (delt true = trueHash) with (delt (eqHash a v v) = trueHash) in e0 by now (rewrite (eq_sym (eqHashRefl1 a v v eq_refl))).
   apply eq_sym in e0.
   replace (andHash trueHash (phi v) = falseHash) with (andHash (delt (eqHash a v v)) (phi v) = falseHash) in e by now (rewrite e0).
-  pose (ex_intro (fun x : a =>
-                    andHash (delt (eqHash a x v)) (phi x) = falseHash) v e).
+  pose (ex_intro (fun x : a => andHash (delt (eqHash a x v)) (phi x) = falseHash) v e).
   assert (not (exists x : a, andHash (delt (eqHash a x v)) (phi x) = trueHash)).
   intro.
   elim H0.
@@ -421,8 +418,7 @@ Proof.
   rewrite e3 in e4.
   rewrite e4 in H.
   exact (proj1 THash_not_eq (eq_sym H)).
-  exact (existsHashDef2 a (fun x : a =>
-                             andHash (delt (eqHash a x v)) (phi x)) (conj e1 H0)).
+  exact (existsHashDef2 a (fun x : a => andHash (delt (eqHash a x v)) (phi x)) (conj e1 H0)).
   intros.
   assert (forall (x : a), andHash (delt (eqHash a x v)) (phi x) = hash).
   intro.
@@ -435,6 +431,5 @@ Proof.
   rewrite (proj2 deltDef).
   rewrite (proj2 (andHashDef1 (phi x))).
   trivial.
-  exact (existsHashDef3 a (fun x : a =>
-                             andHash (delt (eqHash a x v)) (phi x)) H0).
+  exact (existsHashDef3 a (fun x : a => andHash (delt (eqHash a x v)) (phi x)) H0).
 Qed.
