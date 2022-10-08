@@ -65,12 +65,20 @@ Proof.
 Qed.
 
 Axiom existsHash : forall {a : Set}, (a -> THash) -> THash.
-Axiom existsHashDef1 : forall {a : Set} {k : a -> THash}, (exists (x : a), k x = trueHash) -> existsHash k = trueHash.
-Axiom existsHashDef1' : forall {a : Set} {k : a -> THash}, existsHash k = trueHash -> (exists (x : a), k x = trueHash).
-Axiom existsHashDef2 : forall {a : Set} {k : a -> THash}, ((exists (x : a), k x = falseHash) /\ ~ (exists (x : a), k x = trueHash)) -> existsHash k = falseHash.
-Axiom existsHashDef2' : forall {a : Set} {k : a -> THash}, existsHash k = falseHash -> (exists (x : a), k x = falseHash) /\ ~ (exists (x : a), k x = trueHash).
-Axiom existsHashDef3 : forall {a : Set} {k : a -> THash}, (forall (x : a), k x = hash) -> existsHash k = hash.
-Axiom existsHashDef3' : forall {a : Set} {k : a -> THash}, existsHash k = hash -> (forall (x : a), k x = hash).
+Axiom existsHashDef1 : forall {a : Set} {k : a -> THash},
+    (exists (x : a), k x = trueHash) -> existsHash k = trueHash.
+Axiom existsHashDef1' : forall {a : Set} {k : a -> THash},
+    existsHash k = trueHash -> (exists (x : a), k x = trueHash).
+Axiom existsHashDef2 : forall {a : Set} {k : a -> THash},
+    ((exists (x : a), k x = falseHash) /\ ~ (exists (x : a), k x = trueHash)) ->
+    existsHash k = falseHash.
+Axiom existsHashDef2' : forall {a : Set} {k : a -> THash},
+    existsHash k = falseHash ->
+    (exists (x : a), k x = falseHash) /\ ~ (exists (x : a), k x = trueHash).
+Axiom existsHashDef3 : forall {a : Set} {k : a -> THash},
+    (forall (x : a), k x = hash) -> existsHash k = hash.
+Axiom existsHashDef3' : forall {a : Set} {k : a -> THash},
+    existsHash k = hash -> (forall (x : a), k x = hash).
 
 Lemma existsHash_comm : forall {a : Set} {b : Set} {k : a * b -> THash},
     existsHash (fun x : a => existsHash (fun (y : b) => k (x, y))) =
@@ -86,7 +94,9 @@ Proof.
   elim e0.
   intros.
   pose (existsHashDef1 (ex_intro (fun (x1 : a) => k (x1, x0) = trueHash) x H1)).
-  pose (existsHashDef1 (ex_intro (fun y : b => existsHash (fun x1 : a => k (x1, y)) = trueHash) x0 e1)).
+  pose (existsHashDef1
+          (ex_intro (fun y : b =>
+                       existsHash (fun x1 : a => k (x1, y)) = trueHash) x0 e1)).
   exact (eq_sym e2).
   intro.
   pose (existsHashDef2' H).
@@ -132,8 +142,11 @@ Proof.
 Qed.
   
 Axiom andHash : THash -> THash -> THash.
-Axiom andHashDef1 : forall (x : THash), andHash x hash = hash /\ andHash hash x = hash.
-Axiom andHashDef2 : andHash trueHash falseHash = falseHash /\ andHash falseHash trueHash = falseHash /\ andHash falseHash falseHash = falseHash.
+Axiom andHashDef1 : forall (x : THash),
+    andHash x hash = hash /\ andHash hash x = hash.
+Axiom andHashDef2 : andHash trueHash falseHash = falseHash /\
+                      andHash falseHash trueHash = falseHash /\
+                      andHash falseHash falseHash = falseHash.
 Axiom andHashDef3 : andHash trueHash trueHash = trueHash.
 
 Lemma andHash_comm : forall (x y : THash), andHash x y = andHash y x.
@@ -177,7 +190,8 @@ Proof.
   trivial.
 Qed.
    
-Lemma andHash_assoc : forall (x y z : THash), andHash x (andHash y z) = andHash (andHash x y) z.
+Lemma andHash_assoc : forall (x y z : THash),
+    andHash x (andHash y z) = andHash (andHash x y) z.
 Proof.
   intros.
   case_eq x. case_eq y. case_eq z.
@@ -291,7 +305,8 @@ Proof.
   repeat rewrite (proj2 (andHashDef1 hash)). trivial.
 Qed.
  
-Lemma andHash_is_true : forall (x  y : THash), andHash x y = trueHash -> x = trueHash /\ y = trueHash.
+Lemma andHash_is_true : forall (x  y : THash),
+    andHash x y = trueHash -> x = trueHash /\ y = trueHash.
 Proof.
   intros.
   case_eq x.
@@ -343,7 +358,8 @@ Proof.
   exact (conj H H).
 Qed.
 
-Lemma andHash_is_false1 : forall (x y : THash), andHash x y = falseHash -> x = falseHash \/ y = falseHash.
+Lemma andHash_is_false1 : forall (x y : THash),
+    andHash x y = falseHash -> x = falseHash \/ y = falseHash.
 Proof.
   intros.
   case_eq x.
@@ -383,9 +399,12 @@ Proof.
   inversion f.
 Qed.
 
-Lemma andHash_is_false2 : forall (x y : THash), andHash x y = falseHash -> (x = trueHash \/ x = falseHash) /\ (y = trueHash \/ y = falseHash).
+Lemma andHash_is_false2 : forall (x y : THash),
+    andHash x y = falseHash ->
+    (x = trueHash \/ x = falseHash) /\ (y = trueHash \/ y = falseHash).
 Proof.
-  assert (forall (x y : THash), andHash x y = falseHash -> x = trueHash \/ x = falseHash). intros.
+  assert (forall (x y : THash),
+             andHash x y = falseHash -> x = trueHash \/ x = falseHash). intros.
   case_eq x. intro.
   left. trivial.
   intro.
@@ -402,7 +421,8 @@ Proof.
   exact (H y x H0).
 Qed.
  
-Lemma andHash_is_hash : forall (x y : THash), andHash x y = hash -> x = hash \/ y = hash.
+Lemma andHash_is_hash : forall (x y : THash),
+    andHash x y = hash -> x = hash \/ y = hash.
 Proof.
   intros.
   case_eq x.
@@ -493,9 +513,13 @@ Proof.
   elim e.
   intros.
   pose andHashDef3.
-  replace (andHash trueHash trueHash = trueHash) with (andHash (phi x) trueHash = trueHash) in e0 by now (rewrite (eq_sym H0)).
-  replace (andHash (phi x) trueHash = trueHash) with (andHash (phi x) p = trueHash) in e0 by now (rewrite (proj2 a0)).
-  exact (eq_sym (existsHashDef1 (ex_intro (fun x0 : a => andHash (phi x0) p = trueHash) x e0))).
+  replace (andHash trueHash trueHash = trueHash) with
+    (andHash (phi x) trueHash = trueHash) in e0 by now (rewrite (eq_sym H0)).
+  replace (andHash (phi x) trueHash = trueHash) with
+    (andHash (phi x) p = trueHash) in e0 by now (rewrite (proj2 a0)).
+  exact (eq_sym
+           (existsHashDef1
+              (ex_intro (fun x0 : a => andHash (phi x0) p = trueHash) x e0))).
   intro.
   pose (andHash_is_false1 (existsHash phi) p H).
   elim o.
@@ -507,11 +531,13 @@ Proof.
   case_eq p.
   intro.
   pose (proj1 (proj2 andHashDef2)).
-  replace (andHash falseHash trueHash = falseHash) with (andHash (phi x) trueHash = falseHash) in e by now (rewrite (eq_sym H1)).
+  replace (andHash falseHash trueHash = falseHash) with
+    (andHash (phi x) trueHash = falseHash) in e by now (rewrite (eq_sym H1)).
   exact (ex_intro (fun x0 : a => andHash (phi x0) trueHash = falseHash) x e).
   intro.
   pose (proj2 (proj2 andHashDef2)).
-  replace (andHash falseHash falseHash = falseHash) with (andHash (phi x) falseHash = falseHash) in e by now (rewrite (eq_sym H1)).
+  replace (andHash falseHash falseHash = falseHash) with
+    (andHash (phi x) falseHash = falseHash) in e by now (rewrite (eq_sym H1)).
   exact (ex_intro (fun x0 : a => andHash (phi x0) falseHash = falseHash) x e).
   intro.
   pose H.
@@ -523,7 +549,9 @@ Proof.
   intro.
   elim H2.
   intros.
-  exact (proj2 a0 (ex_intro (fun x => phi x = trueHash) x (proj1 (andHash_is_true (phi x) p H3)))).
+  exact (proj2 a0 (ex_intro
+                     (fun x => phi x = trueHash)
+                     x (proj1 (andHash_is_true (phi x) p H3)))).
   exact (eq_sym (existsHashDef2 (conj H1 H2))).
   intro.
   rewrite H0.
@@ -535,18 +563,21 @@ Proof.
   pose (ex_intro (fun x : a => andHash (phi x) falseHash = falseHash) x e0).
   assert (~ exists x : a, andHash (phi x) falseHash = trueHash). intro.
   elim H3. intros.
-  exact (proj1 THash_not_eq (eq_sym (proj2 (andHash_is_true (phi x0) falseHash H4)))).
+  exact (proj1 THash_not_eq
+           (eq_sym (proj2 (andHash_is_true (phi x0) falseHash H4)))).
   exact (eq_sym (existsHashDef2 (conj e1 H3))).
   intro.
   pose (existsHashDef2' H1).
   assert (exists x : a, andHash (phi x) falseHash = falseHash).
   elim (proj1 a0). intros.
   pose (proj2 (proj2 andHashDef2)).
-  replace (andHash falseHash falseHash = falseHash) with (andHash (phi x) falseHash = falseHash) in e by now (rewrite (eq_sym H2)).
+  replace (andHash falseHash falseHash = falseHash) with
+    (andHash (phi x) falseHash = falseHash) in e by now (rewrite (eq_sym H2)).
   exact (ex_intro (fun x0 : a => andHash (phi x0) falseHash = falseHash) x e).
   assert (~ exists x : a, andHash (phi x) falseHash = trueHash). intro.
   elim H3. intros.
-  exact (proj1 THash_not_eq (eq_sym (proj2 (andHash_is_true (phi x) falseHash H4)))).
+  exact (proj1 THash_not_eq
+           (eq_sym (proj2 (andHash_is_true (phi x) falseHash H4)))).
   exact (eq_sym (existsHashDef2 (conj H2 H3))).
   intro.
   elim (proj1 (andHash_is_false2 (existsHash phi) p H)). intro.
@@ -563,7 +594,8 @@ Proof.
   elim o. intro.
   pose (existsHashDef3' H0 x).
   pose (proj2 (andHashDef1 p)).
-  replace (andHash hash p = hash) with (andHash (phi x) p = hash) in e0 by now (rewrite (eq_sym e)).
+  replace (andHash hash p = hash) with
+    (andHash (phi x) p = hash) in e0 by now (rewrite (eq_sym e)).
   exact e0.
   intro.
   rewrite H0.
@@ -571,9 +603,16 @@ Proof.
   exact (eq_sym (existsHashDef3 H0)).
 Qed.
 
-Lemma existsHash_andHash_existsHash_andHash : forall {a b : Set} (m : b -> THash) (n : a -> b -> THash) (o : a -> THash),
-    existsHash (fun x : a => andHash (existsHash (fun y : b => andHash (m y) (n x y))) (o x)) =
-      existsHash (fun y : b => andHash (m y) (existsHash (fun x : a => andHash (n x y) (o x)))).
+Lemma existsHash_andHash_existsHash_andHash : forall {a b : Set}
+                                                     (m : b -> THash)
+                                                     (n : a -> b -> THash)
+                                                     (o : a -> THash),
+    existsHash (fun x : a =>
+                  andHash (existsHash (fun y : b =>
+                                         andHash (m y) (n x y))) (o x)) =
+      existsHash (fun y : b =>
+                    andHash (m y) (existsHash (fun x : a =>
+                                                 andHash (n x y) (o x)))).
 Admitted.                       (* Taking forever *)
 (* Proof. *)
 (*   intros. *)
@@ -624,7 +663,8 @@ Axiom eqHash : forall {a : Set}, a -> a -> T.
 Axiom eqHashRefl1 : forall {a : Set} {x y : a}, x = y -> eqHash x y = true.
 Axiom eqHashRefl2 : forall {a : Set} {x y : a}, eqHash x y = true -> x = y.
 
-Lemma eqHashRefl1_converse : forall {a : Set} {x y : a}, ~ (x = y) -> eqHash x y = false.
+Lemma eqHashRefl1_converse : forall {a : Set} {x y : a},
+    ~ (x = y) -> eqHash x y = false.
 Proof.
   intros.
   case_eq (eqHash x y). intro.
@@ -633,7 +673,8 @@ Proof.
   trivial.
 Qed.
 
-Lemma eqHashRefl2_converse : forall {a : Set} {x y : a}, eqHash x y = false -> ~ (x = y).
+Lemma eqHashRefl2_converse : forall {a : Set} {x y : a},
+    eqHash x y = false -> ~ (x = y).
 Proof.
   intros.
   intro.
@@ -663,27 +704,38 @@ Proof.
   intro. trivial.
 Qed.
 
-Theorem delt_elim : forall {a : Set} (v : a) (phi : a -> THash), existsHash (fun (x : a) => andHash (delt (eqHash x v)) (phi x)) = phi v.
+Theorem delt_elim : forall {a : Set} (v : a) (phi : a -> THash),
+    existsHash (fun (x : a) => andHash (delt (eqHash x v)) (phi x)) = phi v.
 Proof.
   intros.
   case_eq (phi v).
   intro. apply eq_sym in H.
   pose andHashDef3.
-  replace (andHash trueHash trueHash = trueHash) with (andHash trueHash (phi v) = trueHash) in e by now (rewrite H).
+  replace (andHash trueHash trueHash = trueHash) with
+    (andHash trueHash (phi v) = trueHash) in e by now (rewrite H).
   pose (proj1 deltDef).
-  replace (delt true = trueHash) with (delt (eqHash v v) = trueHash) in e0 by now (rewrite (eq_sym (eqHashRefl1 (eq_refl v)))).
+  replace (delt true = trueHash) with
+    (delt (eqHash v v) = trueHash) in e0 by
+      now (rewrite (eq_sym (eqHashRefl1 (eq_refl v)))).
   apply eq_sym in e0.
-  replace (andHash trueHash (phi v) = trueHash) with (andHash (delt (eqHash v v)) (phi v) = trueHash) in e by now (rewrite e0).
-  pose (ex_intro (fun x : a => andHash (delt (eqHash x v)) (phi x) = trueHash) v e).
+  replace (andHash trueHash (phi v) = trueHash) with
+    (andHash (delt (eqHash v v)) (phi v) = trueHash) in e by now (rewrite e0).
+  pose (ex_intro
+          (fun x : a => andHash (delt (eqHash x v)) (phi x) = trueHash) v e).
   exact (existsHashDef1 e1).
   intro. apply eq_sym in H.
   pose (proj1 andHashDef2).
-  replace (andHash trueHash falseHash = falseHash) with (andHash trueHash (phi v) = falseHash) in e by now (rewrite H).
+  replace (andHash trueHash falseHash = falseHash) with
+    (andHash trueHash (phi v) = falseHash) in e by now (rewrite H).
   pose (proj1 deltDef).
-  replace (delt true = trueHash) with (delt (eqHash v v) = trueHash) in e0 by now (rewrite (eq_sym (eqHashRefl1 (eq_refl v)))).
+  replace (delt true = trueHash) with
+    (delt (eqHash v v) = trueHash) in e0 by
+      now (rewrite (eq_sym (eqHashRefl1 (eq_refl v)))).
   apply eq_sym in e0.
-  replace (andHash trueHash (phi v) = falseHash) with (andHash (delt (eqHash v v)) (phi v) = falseHash) in e by now (rewrite e0).
-  pose (ex_intro (fun x : a => andHash (delt (eqHash x v)) (phi x) = falseHash) v e).
+  replace (andHash trueHash (phi v) = falseHash) with
+    (andHash (delt (eqHash v v)) (phi v) = falseHash) in e by now (rewrite e0).
+  pose (ex_intro
+          (fun x : a => andHash (delt (eqHash x v)) (phi x) = falseHash) v e).
   assert (~ (exists x : a, andHash (delt (eqHash x v)) (phi x) = trueHash)).
   intro.
   elim H0.
@@ -713,35 +765,37 @@ Qed.
 
 Definition monad_left_id
   (m : Set -> Set)
-  (eta : forall (a : Set), a -> m a)
-  (bind : forall (a b : Set), m a -> (a -> m b) -> m b)
-  := forall (a b : Set) (x : a) (k : a -> m b), bind a b (eta a x) k = k x.
+  (eta : forall {a : Set}, a -> m a)
+  (bind : forall {a b : Set}, m a -> (a -> m b) -> m b) :=
+  forall {a b : Set} (x : a) (k : a -> m b), bind (eta x) k = k x.
 
 Definition monad_right_id
   (m : Set -> Set)
-  (eta : forall (a : Set), a -> m a)
-  (bind : forall (a b : Set), m a -> (a -> m b) -> m b)
-  := forall (a : Set) (m' : m a), bind a a m' (eta a) = m'.
+  (eta : forall {a : Set}, a -> m a)
+  (bind : forall {a b : Set}, m a -> (a -> m b) -> m b) :=
+  forall {a : Set} (m' : m a), bind m' eta = m'.
 
 Definition monad_assoc
   (m : Set -> Set)
-  (bind : forall (a b : Set), m a -> (a -> m b) -> m b)
-  := forall (a b c : Set) (m' : m a) (n : a -> m b) (o : b -> m c),
-    bind b c (bind a b m' n) o = bind a c m' (fun x => bind b c (n x) o).
+  (bind : forall {a b : Set}, m a -> (a -> m b) -> m b) :=
+  forall {a b c : Set} (m' : m a) (n : a -> m b) (o : b -> m c),
+    bind (bind m' n) o = bind m' (fun x => bind (n x) o).
 
 Definition monad
   (m : Set -> Set)
   (eta : forall (a : Set), a -> m a)
-  (bind : forall (a b : Set), m a -> (a -> m b) -> m b)
-  := monad_left_id m eta bind /\ monad_right_id m eta bind /\ monad_assoc m bind.
+  (bind : forall (a b : Set), m a -> (a -> m b) -> m b) :=
+  monad_left_id m eta bind /\ monad_right_id m eta bind /\ monad_assoc m bind.
 
 Definition SHash (a : Set) := a -> THash.
-Definition etaHash (a : Set) (x : a) : SHash a := fun y : a => delt (eqHash y x).
-Definition bindHash (a b : Set) (m : SHash a) (k : a -> SHash b) : SHash b
-  := fun y : b => existsHash (fun x : a => andHash (m x) (k x y)).
+Definition etaHash (a : Set) (x : a) : SHash a :=
+  fun y : a => delt (eqHash y x).
+Definition bindHash (a b : Set) (m : SHash a) (k : a -> SHash b) : SHash b :=
+  fun y : b => existsHash (fun x : a => andHash (m x) (k x y)).
 
 (* We need functional extensionality (a.k.a. η-expansion). *)
-Axiom functional_extensionality: forall {a b} (f g : a -> b) , (forall x, f x = g x) -> f = g.
+Axiom functional_extensionality: forall {a b} (f g : a -> b),
+    (forall x, f x = g x) -> f = g.
 
 (* The grand finale! *)
 Theorem SHash_is_a_monad : monad SHash etaHash bindHash.
@@ -749,8 +803,15 @@ Proof.
   split.
   unfold monad_left_id. unfold bindHash. unfold etaHash.
   intros.
-  pose (functional_extensionality (fun y : b => existsHash (fun x0 : a => andHash (delt (eqHash x0 x)) (k x0 y))) (k x)).
-  assert (forall x0 : b, (fun y : b => existsHash (fun x1 : a => andHash (delt (eqHash x1 x)) (k x1 y))) x0 = k x x0).
+  pose (functional_extensionality (fun y : b =>
+                                     existsHash (fun x0 : a =>
+                                                   andHash (delt (eqHash x0 x))
+                                                     (k x0 y))) (k x)).
+  assert (forall x0 : b,
+             (fun y : b =>
+                existsHash (fun x1 : a =>
+                              andHash (delt (eqHash x1 x)) (k x1 y))) x0 =
+               k x x0).
   intro.
   rewrite (delt_elim x (fun x' : a => k x' x0)). trivial.
   exact (e H).
