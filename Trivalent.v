@@ -26,8 +26,6 @@ Inductive THash :=
 | falseHash : THash
 | hash : THash.
 
-Print T_not_eq.
-
 Definition THash_elim {a : Type} (p : THash) (v1 v2 v3 : a) : a :=
   match p with
   | trueHash => v1
