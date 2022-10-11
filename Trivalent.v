@@ -21,8 +21,6 @@ Proof.
   exact u.
 Qed.
 
-Check T_not_eq.
-
 Inductive THash :=
 | trueHash : THash
 | falseHash : THash
