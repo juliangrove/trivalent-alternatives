@@ -1,3 +1,4 @@
+(* Boolean t. *)
 Inductive T :=
 | true : T
 | false : T.
@@ -8,6 +9,7 @@ Definition T_elim {a : Type} (p : T) (v1 v2 : a) : a :=
   | false => v2
   end.
 
+(* Convenient to have. *)
 Theorem T_not_eq : ~ (true = false).
 Proof.
   intro.
@@ -21,6 +23,7 @@ Proof.
   exact u.
 Qed.
 
+(* Trivalent t#. *)
 Inductive THash :=
 | trueHash : THash
 | falseHash : THash
@@ -33,6 +36,7 @@ Definition THash_elim {a : Type} (p : THash) (v1 v2 v3 : a) : a :=
   | hash => v3
   end.
 
+(* Convienent to have. *)
 Theorem THash_not_eq : ~ (trueHash = falseHash) /\
                          ~ (hash = trueHash) /\
                          ~ (hash = falseHash).
@@ -74,7 +78,8 @@ Proof.
   exact u.
 Qed.
 
-Axiom existsHash : forall {a : Set}, (a -> THash) -> THash.
+(* The ``charitable'' trivalent existential quantifier, ∃#. *)
+Parameter existsHash : forall {a : Set}, (a -> THash) -> THash.
 Axiom existsHashDef1 : forall {a : Set} {k : a -> THash},
     (exists (x : a), k x = trueHash) -> existsHash k = trueHash.
 Axiom existsHashDef1' : forall {a : Set} {k : a -> THash},
@@ -159,8 +164,9 @@ Proof.
   exact (existsHashDef3 H0).
   exact (eq_sym (existsHashDef3 H0)).
 Qed.
-  
-Axiom andHash : THash -> THash -> THash.
+
+(* Weak Kleene ∧, i.e., ∧#. *)
+Parameter andHash : THash -> THash -> THash.
 Axiom andHashDef1 : forall (x : THash),
     andHash x hash = hash /\ andHash hash x = hash.
 Axiom andHashDef2 : andHash trueHash falseHash = falseHash /\
@@ -484,7 +490,7 @@ Proof.
   trivial.
 Qed.
 
-Axiom delt : T -> THash.
+Parameter delt : T -> THash.
 Axiom deltDef : delt true = trueHash /\ delt false = hash.
 
 Lemma delt_inj : forall {x y : T}, delt x = delt y -> x = y.
@@ -632,7 +638,6 @@ Lemma existsHash_andHash_existsHash_andHash : forall {a b : Set}
       existsHash (fun y : b =>
                     andHash (m y) (existsHash (fun x : a =>
                                                  andHash (n x y) (o x)))).
-(* Admitted.                       (* Taking forever *) *)
 Proof.
   intros.
   case_eq (existsHash (fun x : a =>
@@ -825,7 +830,7 @@ Proof.
   inversion f.
 Qed.
 
-Axiom eqHash : forall {a : Set}, a -> a -> T.
+Parameter eqHash : forall {a : Set}, a -> a -> T.
 Axiom eqHashRefl1 : forall {a : Set} {x y : a}, x = y -> eqHash x y = true.
 Axiom eqHashRefl2 : forall {a : Set} {x y : a}, eqHash x y = true -> x = y.
 
@@ -929,30 +934,37 @@ Proof.
   exact (existsHashDef3 H0).
 Qed.
 
+(* Monadic stuff. *)
+
+(* Left Identity *)
 Definition monad_left_id
   (m : Set -> Set)
   (eta : forall {a : Set}, a -> m a)
   (bind : forall {a b : Set}, m a -> (a -> m b) -> m b) :=
   forall {a b : Set} (x : a) (k : a -> m b), bind (eta x) k = k x.
 
+(* Right Identity *)
 Definition monad_right_id
   (m : Set -> Set)
   (eta : forall {a : Set}, a -> m a)
   (bind : forall {a b : Set}, m a -> (a -> m b) -> m b) :=
   forall {a : Set} (m' : m a), bind m' eta = m'.
 
+(* Associativity *)
 Definition monad_assoc
   (m : Set -> Set)
   (bind : forall {a b : Set}, m a -> (a -> m b) -> m b) :=
   forall {a b c : Set} (m' : m a) (n : a -> m b) (o : b -> m c),
     bind (bind m' n) o = bind m' (fun x => bind (n x) o).
 
+(* All three *)
 Definition monad
   (m : Set -> Set)
   (eta : forall (a : Set), a -> m a)
   (bind : forall (a b : Set), m a -> (a -> m b) -> m b) :=
   monad_left_id m eta bind /\ monad_right_id m eta bind /\ monad_assoc m bind.
 
+(* The functor S#, defined as S# α = α → t#. *)
 Definition SHash (a : Set) := a -> THash.
 Definition etaHash (a : Set) (x : a) : SHash a :=
   fun y : a => delt (eqHash y x).
