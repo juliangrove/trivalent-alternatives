@@ -739,7 +739,7 @@ Proof.
   intro. trivial.
 Qed.
 
-Lemma δ_elim :
+Theorem δ_elim :
   forall {a : Set} (v : a) (φ : a -> T#),
     (∃# (fun (x : a) => δ (x ≡ v) ∧# φ x)) = φ v.
 Proof.
